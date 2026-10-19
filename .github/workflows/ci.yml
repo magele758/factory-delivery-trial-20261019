@@ -1,0 +1,25 @@
+name: Controlled trial CI
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test
+      - name: Contract checks on submitted code
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import {sum} from './sum.mjs';
+          import {product} from './product.mjs';
+          const fs=await import('node:fs');
+          // Each approved task activates only its feature contract through its regression file.
+          if(fs.existsSync('sum.test.mjs')){assert.equal(sum(0.1,0.2),0.3);assert.equal(sum(12345,67890),80235);}
+          if(fs.existsSync('product.test.mjs')){assert.equal(product(0.1,0.2),0.02);assert.equal(product(12345,0),0);}
+          JS
