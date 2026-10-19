@@ -16,7 +16,7 @@ function parseDecimal(value) {
     throw new TypeError('Expected a finite number');
   }
 
-  const fraction = match[2] ?? '';
+  const fraction = match[2] || '';
   const exponent = match[3] ? Number(match[3]) : 0;
   const digits = (match[1] + fraction).replace(/^0+/, '') || '0';
 
