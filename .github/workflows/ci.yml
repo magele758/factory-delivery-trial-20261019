@@ -21,5 +21,5 @@ jobs:
           const fs=await import('node:fs');
           // Each approved task activates only its feature contract through its regression file.
           if(fs.existsSync('sum.test.mjs')){assert.equal(sum(0.1,0.2),0.3);assert.equal(sum(12345,67890),80235);}
-          if(fs.existsSync('product.test.mjs')){assert.equal(product(0.1,0.2),0.02);assert.equal(product(12345,0),0);}
+          if(fs.existsSync('product.test.mjs')){assert.equal(product(0.1,0.2),0.02);assert.equal(product(12345,0),0);assert.ok(Object.is(product(-0,2),-0),'finite multiplication preserves the sign of negative zero');assert.ok(Object.is(product(-2,0),-0),'negative times positive zero is negative zero');}
           JS
