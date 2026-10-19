@@ -6,7 +6,7 @@ function assertFiniteNumber(value) {
 
 function parseDecimal(value) {
   if (value === 0) {
-    return { sign: 1n, digits: 0n, scale: 0 };
+    return { sign: Object.is(value, -0) ? -1n : 1n, digits: 0n, scale: 0 };
   }
 
   const sign = value < 0 ? -1n : 1n;
@@ -29,7 +29,7 @@ function parseDecimal(value) {
 
 function formatDecimal(sign, digits, scale) {
   if (digits === 0n) {
-    return 0;
+    return sign < 0n ? -0 : 0;
   }
 
   let body = digits.toString();
