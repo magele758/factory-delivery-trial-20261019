@@ -23,3 +23,24 @@ jobs:
           if(fs.existsSync('sum.test.mjs')){assert.equal(sum(0.1,0.2),0.3);assert.equal(sum(12345,67890),80235);}
           if(fs.existsSync('product.test.mjs')){assert.equal(product(0.1,0.2),0.02);assert.equal(product(12345,0),0);assert.ok(Object.is(product(-0,2),-0),'finite multiplication preserves the sign of negative zero');assert.ok(Object.is(product(-2,0),-0),'negative times positive zero is negative zero');}
           JS
+      - name: Select independently configured compatibility runtime
+        if: hashFiles('product.test.mjs') != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ vars.FACTORY_TRIAL_COMPAT_NODE }}
+      - name: Compatibility of the exported production API
+        if: hashFiles('product.test.mjs') != ''
+        shell: bash
+        run: |
+          set +e
+          result=$(node --input-type=module -e "import assert from 'assert'; import {product} from './product.mjs'; assert.strictEqual(product(2,3),6); assert.ok(Object.is(product(-0,2),-0));" 2>&1)
+          status=$?
+          printf '%s\n' "$result"
+          if [ "$status" -ne 0 ]; then
+            result="runtime $(node --version): $result"
+            result="${result//'%'/'%25'}"
+            result="${result//$'\n'/'%0A'}"
+            result="${result//$'\r'/'%0D'}"
+            printf '::error::%s\n' "$result"
+            exit "$status"
+          fi
